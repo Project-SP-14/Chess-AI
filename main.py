@@ -1,5 +1,11 @@
 import sys, pygame
 import board
+import pawn
+import rook
+import queen
+import king
+import knight
+import bishop
 
 pygame.init()
 
@@ -7,12 +13,55 @@ size = width, height = 1024, 1024
 black = 0, 0, 0
 white = 255, 255, 255
 green = 0, 128, 0
-purple = 128,0,128
+bpawn = pygame.image.load('./images/bpawn.png')
+wpawn = pygame.image.load('./images/wpawn.png')
+brook = pygame.image.load('./images/brook.png')
+wrook = pygame.image.load('./images/wrook.png')
+bbishop = pygame.image.load('./images/bbishop.png')
+wbishop = pygame.image.load('./images/wbishop.png')
+bknight = pygame.image.load('./images/bknight.png')
+wknight = pygame.image.load('./images/wknight.png')
+bking = pygame.image.load('./images/bking.png')
+wking = pygame.image.load('./images/wking.png')
+bqueen = pygame.image.load('./images/bqueen.png')
+wqueen = pygame.image.load('./images/wqueen.png')
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 b = board.Board()
 b.start_turn()
     
+def draw_pieces(screen, board):
+    if(isinstance(b.board[x][y], pawn.Pawn)):
+        if (b.board[x][y].white == True):
+            screen.blit(wpawn,(y*128,x*128))
+        if (b.board[x][y].white == False):
+            screen.blit(bpawn,(y*128,x*128))
+    elif(isinstance(b.board[x][y], rook.Rook)):
+        if (b.board[x][y].white == True):
+            screen.blit(wrook,(y*128,x*128))
+        if (b.board[x][y].white == False):
+            screen.blit(brook,(y*128,x*128))
+    elif(isinstance(b.board[x][y], bishop.Bishop)):
+        if (b.board[x][y].white == True):
+            screen.blit(wbishop,(y*128,x*128))
+        if (b.board[x][y].white == False):
+            screen.blit(bbishop,(y*128,x*128))
+    elif(isinstance(b.board[x][y], knight.Knight)):
+        if (b.board[x][y].white == True):
+            screen.blit(wknight,(y*128,x*128))
+        if (b.board[x][y].white == False):
+            screen.blit(bknight,(y*128,x*128))
+    elif(isinstance(b.board[x][y], queen.Queen)):
+        if (b.board[x][y].white == True):
+            screen.blit(wqueen,(y*128,x*128))
+        if (b.board[x][y].white == False):
+            screen.blit(bqueen,(y*128,x*128))
+    elif(isinstance(b.board[x][y], king.King)):
+        if (b.board[x][y].white == True):
+            screen.blit(wking,(y*128,x*128))
+        if (b.board[x][y].white == False):
+            screen.blit(bking,(y*128,x*128))
+            
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()  
@@ -63,7 +112,8 @@ while True:
                 color = black
             pygame.draw.rect(screen, color, pygame.Rect(y*128, x*128, 128, 128))
             if(b.board[x][y] != None):
-                pygame.draw.rect(screen, purple, pygame.Rect((y*128)+1, (x*128)+1, 126, 126))
+                draw_pieces(screen, b.board)
+                
             tile = tile + 1
         #subtract one from tile so that the checkboard pattern is made
         tile = tile - 1
