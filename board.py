@@ -2,6 +2,8 @@ import pawn
 import rook
 import king
 import knight
+import bishop
+import queen
 
 class Board:
     def __init__(self):
@@ -17,15 +19,22 @@ class Board:
         for x in range(8):
             self.board[6][x] = pawn.Pawn(True, False)
         self.board[0][0] = rook.Rook(False, False)
-        self.board[0][7] = rook.Rook(False, False)
-        self.board[0][4] = king.King(False,False)
         self.board[0][1] = knight.Knight(False, False)
+        self.board[0][2] = bishop.Bishop(False, False)
+        self.board[0][3] = queen.Queen(False,False)
+        self.board[0][4] = king.King(False,False)
+        self.board[0][5] = bishop.Bishop(False, False)
         self.board[0][6] = knight.Knight(False, False)
+        self.board[0][7] = rook.Rook(False, False)
+        
         self.board[7][0] = rook.Rook(True, False)
-        self.board[7][7] = rook.Rook(True, False)
-        self.board[7][4] = king.King(True, False)
         self.board[7][1] = knight.Knight(True, False)
+        self.board[7][2] = bishop.Bishop(True, False)
+        self.board[7][3] = queen.Queen(True, False)
+        self.board[7][4] = king.King(True, False)
+        self.board[7][5] = bishop.Bishop(True, False)
         self.board[7][6] = knight.Knight(True, False)
+        self.board[7][7] = rook.Rook(True, False)
         
     def examine(self, x, y):
         #store the possible moves from the last clicked piece to display on the board

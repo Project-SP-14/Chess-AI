@@ -37,3 +37,5 @@ class Knight:
             if (x+1 < 8):
                 if(board[x+1][y-2] == None or board[x+1][y-2].white == (not self.white)):
                     self.moves.append([x+1,y+2])
+                    
+        return self.moves
