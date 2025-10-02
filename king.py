@@ -42,26 +42,26 @@ class King:
         #if path is clear and king and rook havent moved yet, allow for castling
         if(self.made_first_move == False):
             if (self.white):
-                if (board[7][7].made_first_move == False):
+                if (board[7][7] != None and board[7][7].made_first_move == False):
                     valid = True
                     if (board[7][5] != None or board[7][6] != None):
                         valid = False
                     if (valid):
                         self.moves.append([7,6])
-                if (board[7][0].made_first_move == False):
+                if (board[7][0] != None and board[7][0].made_first_move == False):
                     valid = True
                     if (board[7][3] != None or board[7][2] != None or board[7][1] != None):
                         valid = False
                     if (valid):
                         self.moves.append([7,2])
             else:
-                if (board[0][7].made_first_move == False):
+                if (board[0][7] != None and board[0][7].made_first_move == False):
                     valid = True
                     if (board[0][5] != None or board[0][6] != None):
                         valid = False
                     if (valid):
                         self.moves.append([0,6])
-                if (board[0][0].made_first_move == False):
+                if (board[0][0] != None and board[0][0].made_first_move == False):
                     valid = True
                     if (board[0][3] != None or board[0][2] != None or board[0][1] != None):
                         valid = False

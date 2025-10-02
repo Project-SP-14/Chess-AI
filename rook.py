@@ -13,7 +13,7 @@ class Rook:
         while(search_x < 8):
             if (board[search_x][y] == None):
                 self.moves.append([search_x,y])
-            if (board[search_x][y] != None):
+            else:
                 #if piece is enemy, add position to list of possible moves
                 if (board[search_x][y].white != self.white):
                     self.moves.append([search_x,y])
@@ -24,7 +24,7 @@ class Rook:
         while(search_x > -1):
             if (board[search_x][y] == None):
                 self.moves.append([search_x,y])
-            if (board[search_x][y] != None):
+            else:
                 if (board[search_x][y].white != self.white):
                     self.moves.append([search_x,y])
                 break
@@ -35,7 +35,7 @@ class Rook:
         while(search_y < 8):
             if (board[x][search_y] == None):
                 self.moves.append([x,search_y])
-            if (board[x][search_y] != None):
+            else:
                 #if piece is enemy, add position to list of possible moves
                 if (board[x][search_y].white != self.white):
                     self.moves.append([x,search_y])
@@ -46,7 +46,7 @@ class Rook:
         while(search_y > -1):
             if (board[x][search_y] == None):
                 self.moves.append([x,search_y])
-            if (board[x][search_y] != None):
+            else:
                 if (board[x][search_y].white != self.white):
                     self.moves.append([x,search_y])
                 break
