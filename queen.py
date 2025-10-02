@@ -16,7 +16,8 @@ class Queen:
                 self.moves.append([search_x,search_y])
             else:
                 if (board[search_x][search_y].white != self.white):
-                    self.moves.append([search_x,y])
+                    self.moves.append([search_x,search_y])
+                search_x = 9
                 break
             search_x = search_x + 1
             search_y = search_y + 1
@@ -30,7 +31,8 @@ class Queen:
                 self.moves.append([search_x,search_y])
             else:
                 if (board[search_x][search_y].white != self.white):
-                    self.moves.append([search_x,y])
+                    self.moves.append([search_x,search_y])
+                search_x = -2
                 break
             search_x = search_x - 1
             search_y = search_y + 1
@@ -43,7 +45,8 @@ class Queen:
                 self.moves.append([search_x,search_y])
             else:
                 if (board[search_x][search_y].white != self.white):
-                    self.moves.append([search_x,y])
+                    self.moves.append([search_x,search_y])
+                search_x = 9
                 break
             search_x = search_x + 1
             search_y = search_y - 1
@@ -56,7 +59,8 @@ class Queen:
                 self.moves.append([search_x,search_y])
             else:
                 if (board[search_x][search_y].white != self.white):
-                    self.moves.append([search_x,y])
+                    self.moves.append([search_x,search_y])
+                search_x = -2
                 break
             search_x = search_x - 1
             search_y = search_y - 1
@@ -69,8 +73,10 @@ class Queen:
                 #if piece is enemy, add position to list of possible moves
                 if (board[search_x][y].white != self.white):
                     self.moves.append([search_x,y])
+                search_x = 9
                 break
             search_x = search_x + 1
+
         search_x = x-1    
         #check vertical upward move
         while(search_x > -1):
@@ -79,6 +85,7 @@ class Queen:
             else:
                 if (board[search_x][y].white != self.white):
                     self.moves.append([search_x,y])
+                search_x = -2
                 break
             search_x = search_x - 1
             
@@ -91,8 +98,10 @@ class Queen:
                 #if piece is enemy, add position to list of possible moves
                 if (board[x][search_y].white != self.white):
                     self.moves.append([x,search_y])
+                search_y = 9
                 break
             search_y = search_y + 1
+            
         search_y = y-1    
         #check vertical upward move
         while(search_y > -1):
@@ -101,6 +110,7 @@ class Queen:
             else:
                 if (board[x][search_y].white != self.white):
                     self.moves.append([x,search_y])
+                search_y = -2
                 break
             search_y = search_y - 1    
         return self.moves

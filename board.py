@@ -4,9 +4,15 @@ import king
 import knight
 import bishop
 import queen
+import aiplayer
 
 class Board:
-    def __init__(self):
+    def __init__(self, player1, player2, arg1, arg2):
+        self.players = [player1,player2,arg1,arg2]
+        self.currentp = 0
+        #first two values are integers that decide player type
+        #0 for local, 1 for ai, 2 for online
+        #next two values holds difficulty value for ai player and ip for online player 
         self.board = [[None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None],[None,None,None,None,None,None,None,None]]
         self.capture_white = []
         self.capture_black = []
@@ -52,7 +58,6 @@ class Board:
         if (self.currentpiece == [-1,-1]):
             return False
         elif (self.currentpiece == [x,y]):
-            print('invalid move')
             return False
         elif ([x,y] in self.moves and self.board[self.currentpiece[0]][self.currentpiece[1]].white == self.white):
             moving = f"moving {self.currentpiece[0]},{self.currentpiece[1]} to {x},{y}"
@@ -63,6 +68,7 @@ class Board:
             self.moves = []
             self.currentpiece = [-1,-1]
             self.white = not self.white
+            self.currentp = (self.currentp + 1)%2
             return True
         else:
             print('invalid move')
@@ -77,4 +83,11 @@ class Board:
             for y in range(8):
                 if self.board[x][y] != None:
                     self.board[x][y].generate_moves(x,y, self.board)
-           
+        #if a player is an AI then generate a move based on the difficulty
+        if (self.players[self.currentp] == 1):
+            ai = aiplayer.AI(self.players[self.currentp+2])
+            move = ai.decide_move(self.board, self.white)
+            self.currentpiece = [move[0],move[1]]
+            self.moves = self.board[move[0]][move[1]].moves
+            if(self.play_move(move[2],move[3])):
+                self.start_turn()

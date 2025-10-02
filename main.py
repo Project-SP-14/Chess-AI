@@ -27,7 +27,8 @@ bqueen = pygame.image.load('./images/bqueen.png')
 wqueen = pygame.image.load('./images/wqueen.png')
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
-b = board.Board()
+#testing default is human player 1, ai player 2, player1 needs no arg, ai has difficulty of 0 (easy)
+b = board.Board(0,1,0,0)
 b.start_turn()
     
 def draw_pieces(screen, board):
@@ -66,7 +67,7 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()  
         
-        elif event.type == pygame.MOUSEBUTTONDOWN:
+        elif event.type == pygame.MOUSEBUTTONDOWN and b.players[b.currentp] == 0:
             #check if right mouse button has been pressed
             mpress = pygame.mouse.get_pressed()[0]
             mpos = pygame.mouse.get_pos()

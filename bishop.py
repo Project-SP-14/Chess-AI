@@ -16,7 +16,7 @@ class Bishop:
                 self.moves.append([search_x,search_y])
             else:
                 if (board[search_x][search_y].white != self.white):
-                    self.moves.append([search_x,y])
+                    self.moves.append([search_x,search_y])
                 break
             search_x = search_x + 1
             search_y = search_y + 1
@@ -30,7 +30,7 @@ class Bishop:
                 self.moves.append([search_x,search_y])
             else:
                 if (board[search_x][search_y].white != self.white):
-                    self.moves.append([search_x,y])
+                    self.moves.append([search_x,search_y])
                 break
             search_x = search_x - 1
             search_y = search_y + 1
@@ -43,7 +43,7 @@ class Bishop:
                 self.moves.append([search_x,search_y])
             else:
                 if (board[search_x][search_y].white != self.white):
-                    self.moves.append([search_x,y])
+                    self.moves.append([search_x,search_y])
                 break
             search_x = search_x + 1
             search_y = search_y - 1
@@ -56,7 +56,7 @@ class Bishop:
                 self.moves.append([search_x,search_y])
             else:
                 if (board[search_x][search_y].white != self.white):
-                    self.moves.append([search_x,y])
+                    self.moves.append([search_x,search_y])
                 break
             search_x = search_x - 1
             search_y = search_y - 1
