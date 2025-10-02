@@ -1,5 +1,7 @@
 import pawn
 import rook
+import king
+import knight
 
 class Board:
     def __init__(self):
@@ -16,8 +18,14 @@ class Board:
             self.board[6][x] = pawn.Pawn(True, False)
         self.board[0][0] = rook.Rook(False, False)
         self.board[0][7] = rook.Rook(False, False)
+        self.board[0][4] = king.King(False,False)
+        self.board[0][1] = knight.Knight(False, False)
+        self.board[0][6] = knight.Knight(False, False)
         self.board[7][0] = rook.Rook(True, False)
         self.board[7][7] = rook.Rook(True, False)
+        self.board[7][4] = king.King(True, False)
+        self.board[7][1] = knight.Knight(True, False)
+        self.board[7][6] = knight.Knight(True, False)
         
     def examine(self, x, y):
         #store the possible moves from the last clicked piece to display on the board
@@ -54,6 +62,8 @@ class Board:
             return False
     def start_turn(self):
         #generate all moves at the start of the turn
+        #TODO: generate the moves for current players king last so that
+        #we can check if the king would be put in danger
         for x in range(8):
             for y in range(8):
                 if self.board[x][y] != None:

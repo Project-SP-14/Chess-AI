@@ -7,6 +7,7 @@ size = width, height = 1024, 1024
 black = 0, 0, 0
 white = 255, 255, 255
 green = 0, 128, 0
+purple = 128,0,128
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 b = board.Board()
@@ -61,6 +62,8 @@ while True:
             else:
                 color = black
             pygame.draw.rect(screen, color, pygame.Rect(y*128, x*128, 128, 128))
+            if(b.board[x][y] != None):
+                pygame.draw.rect(screen, purple, pygame.Rect((y*128)+1, (x*128)+1, 126, 126))
             tile = tile + 1
         #subtract one from tile so that the checkboard pattern is made
         tile = tile - 1
