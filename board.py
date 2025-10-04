@@ -18,7 +18,13 @@ class Board:
         self.capture_black = []
         self.moves = []
         self.currentpiece = [-1,-1]
+        self.previouspiece = [-1,-1,-1,-1]
+        self.previousmove = [-1,-1,-1,-1]
+        self.capturedpiecetype = None
         self.white = True
+        self.aimove = False
+        
+        
         #spawn pawns on the second and seventh rows
         for x in range(8):
             self.board[1][x] = pawn.Pawn(False, False)
@@ -62,10 +68,17 @@ class Board:
         elif ([x,y] in self.moves and self.board[self.currentpiece[0]][self.currentpiece[1]].white == self.white):
             moving = f"moving {self.currentpiece[0]},{self.currentpiece[1]} to {x},{y}"
             print(moving)
+            if (self.board[x][y] != None):
+                self.capturedpiecetype = self.board[x][y]
+            else:
+                self.capturedpiecetype = None
             self.board[x][y] = self.board[self.currentpiece[0]][self.currentpiece[1]]
             self.board[self.currentpiece[0]][self.currentpiece[1]] = None
             self.board[x][y].made_first_move = True
             self.moves = []
+            #store the previous piece locations and previous move so that we can animate the piece movement
+            self.previouspiece = [self.currentpiece[0],self.currentpiece[1],-1,-1]
+            self.previousmove = [x,y,-1,-1]
             self.currentpiece = [-1,-1]
             self.white = not self.white
             self.currentp = (self.currentp + 1)%2
@@ -90,4 +103,4 @@ class Board:
             self.currentpiece = [move[0],move[1]]
             self.moves = self.board[move[0]][move[1]].moves
             if(self.play_move(move[2],move[3])):
-                self.start_turn()
+                self.aimove = True

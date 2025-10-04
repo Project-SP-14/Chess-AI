@@ -6,6 +6,7 @@ import queen
 import king
 import knight
 import bishop
+import time
 
 pygame.init()
 
@@ -29,45 +30,70 @@ screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
 #testing default is human player 1, ai player 2, player1 needs no arg, ai has difficulty of 0 (easy)
 b = board.Board(0,1,0,0)
-b.start_turn()
+turn_started = False
+move_played = False
+game_started = False
+#tracks how the piece should move at each step
+moving_steps = [0,0,-1,-1]
+#tracks how many frames the piece has moved for
+timer = 1
     
-def draw_pieces(screen, board):
-    if(isinstance(b.board[x][y], pawn.Pawn)):
-        if (b.board[x][y].white == True):
-            screen.blit(wpawn,(y*128,x*128))
-        if (b.board[x][y].white == False):
-            screen.blit(bpawn,(y*128,x*128))
-    elif(isinstance(b.board[x][y], rook.Rook)):
-        if (b.board[x][y].white == True):
-            screen.blit(wrook,(y*128,x*128))
-        if (b.board[x][y].white == False):
-            screen.blit(brook,(y*128,x*128))
-    elif(isinstance(b.board[x][y], bishop.Bishop)):
-        if (b.board[x][y].white == True):
-            screen.blit(wbishop,(y*128,x*128))
-        if (b.board[x][y].white == False):
-            screen.blit(bbishop,(y*128,x*128))
-    elif(isinstance(b.board[x][y], knight.Knight)):
-        if (b.board[x][y].white == True):
-            screen.blit(wknight,(y*128,x*128))
-        if (b.board[x][y].white == False):
-            screen.blit(bknight,(y*128,x*128))
-    elif(isinstance(b.board[x][y], queen.Queen)):
-        if (b.board[x][y].white == True):
-            screen.blit(wqueen,(y*128,x*128))
-        if (b.board[x][y].white == False):
-            screen.blit(bqueen,(y*128,x*128))
-    elif(isinstance(b.board[x][y], king.King)):
-        if (b.board[x][y].white == True):
-            screen.blit(wking,(y*128,x*128))
-        if (b.board[x][y].white == False):
-            screen.blit(bking,(y*128,x*128))
+#finds the correct sprite for the piece
+def draw_pieces(piece):
+    if(isinstance(piece, pawn.Pawn)):
+        if (piece.white == True):
+            return wpawn
+        if (piece.white == False):
+            return bpawn
+    elif(isinstance(piece, rook.Rook)):
+        if (piece.white == True):
+            return wrook
+        if (piece.white == False):
+            return brook
+    elif(isinstance(piece, bishop.Bishop)):
+        if (piece.white == True):
+            return wbishop
+        if (piece.white == False):
+            return bbishop
+    elif(isinstance(piece, knight.Knight)):
+        if (piece.white == True):
+            return wknight
+        if (piece.white == False):
+            return bknight
+    elif(isinstance(piece, queen.Queen)):
+        if (piece.white == True):
+            return wqueen
+        if (piece.white == False):
+            return bqueen
+    elif(isinstance(piece, king.King)):
+        if (piece.white == True):
+            return wking
+        if (piece.white == False):
+            return bking
+            
+def draw_board(screen,board):
+    tile = 0
+    color = 0,0,0
+    for x in range(8):
+        for y in range(8):
+            #if the tile is a valid move, make it green
+            if ([x,y] in b.moves):
+                color = green
+            #otherwise make it white or black
+            elif (tile%2 == 0):
+                color = white
+            else:
+                color = black
+            pygame.draw.rect(screen, color, pygame.Rect(y*128, x*128, 128, 128))
+            tile = tile + 1
+        #subtract one from tile so that the checkboard pattern is made
+        tile = tile - 1
             
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()  
         
-        elif event.type == pygame.MOUSEBUTTONDOWN and b.players[b.currentp] == 0:
+        elif event.type == pygame.MOUSEBUTTONDOWN and ((b.players[b.currentp] == 0 and move_played == False) or game_started == False):
             #check if right mouse button has been pressed
             mpress = pygame.mouse.get_pressed()[0]
             mpos = pygame.mouse.get_pos()
@@ -86,39 +112,63 @@ while True:
                         print('attempting to play move')
                         result = b.play_move(row,column)
                         if (result):
-                            b.start_turn()
-                        #if result is true play an animation to move the piece
-        elif event.type == pygame.MOUSEBUTTONUP:
+                            turn_started = False
+                            move_played = True
+                            moving_steps = [((b.previousmove[0]-b.previouspiece[0])*128/30),((b.previousmove[1]-b.previouspiece[1])*128/30),((b.previousmove[2]-b.previouspiece[2])*128/30),((b.previousmove[2]-b.previouspiece[2])*128/30)]
+                            print(moving_steps)
+        elif event.type == pygame.MOUSEBUTTONUP and move_played == False:
             mpos = pygame.mouse.get_pos()
             column = int(mpos[0]/128)
             row = int(mpos[1]/128)
             if ([row,column] != b.currentpiece):
                         result = b.play_move(row,column)
                         if (result):
-                            b.start_turn()
-                        #if result is true play an animation to move the piece
-    tile = 0
-    color = 0,0,0
+                            turn_started = False
+                            move_played = True
+                            moving_steps = [((b.previousmove[0]-b.previouspiece[0])*128/30),((b.previousmove[1]-b.previouspiece[1])*128/30),((b.previousmove[2]-b.previouspiece[2])*128/30),((b.previousmove[2]-b.previouspiece[2])*128/30)]
+
+
+    if(turn_started == False and move_played == False):
+        b.start_turn()
+        turn_started == True
+    if(b.aimove == True):
+        turn_started = False
+        move_played = True
+        moving_steps = [((b.previousmove[0]-b.previouspiece[0])*128/30),((b.previousmove[1]-b.previouspiece[1])*128/30),((b.previousmove[2]-b.previouspiece[2])*128/30),((b.previousmove[2]-b.previouspiece[2])*128/30)]
+        
     #draws the tiles of the chessboard
-    #TODO: draw an image wherever the chess pieces are
+    draw_board(screen, b)
+    if (b.capturedpiecetype != None and move_played == True):
+        sprite = draw_pieces(b.capturedpiecetype)
+        screen.blit(sprite,(b.previousmove[1]*128,b.previousmove[0]*128))
+        print(b.previousmove[0])
+        print(b.previousmove[1])
     for x in range(8):
         for y in range(8):
-            #if the tile is a vllid move, make it green
-            if ([x,y] in b.moves):
-                color = green
-            #otherwise make it white or black
-            elif (tile%2 == 0):
-                color = white
-            else:
-                color = black
-            pygame.draw.rect(screen, color, pygame.Rect(y*128, x*128, 128, 128))
             if(b.board[x][y] != None):
-                draw_pieces(screen, b.board)
+                sprite = draw_pieces(b.board[x][y])
+                if (move_played and (b.previousmove[0] == x and b.previousmove[1] == y)):
+                    timex = int(timer*moving_steps[0])
+                    timey = int(timer*moving_steps[1])
+                    screen.blit(sprite,((b.previouspiece[1]*128)+timey,(b.previouspiece[0]*128)+timex))
+                    timer = timer + 1
+                elif (move_played and (b.previousmove[2] == x and b.previousmove[3] == y)):
+                    timex = int(timer*moving_steps[2])
+                    timey = int(timer*moving_steps[3])
+                    screen.blit(sprite,((b.previouspiece[3]*128)+timey,(b.previouspiece[2]*128)+timex))
+                else:
+                    screen.blit(sprite,(y*128,x*128))
                 
-            tile = tile + 1
-        #subtract one from tile so that the checkboard pattern is made
-        tile = tile - 1
+
+        
+    
     pygame.display.flip()
+    if (timer == 30):
+        print('finished move')
+        move_played = False
+        if (b.aimove):
+            b.aimove = False
+        timer = 1
     clock.tick(60)
     
 pygame.quit()
