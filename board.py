@@ -23,6 +23,8 @@ class Board:
         self.capturedpiecetype = None
         self.white = True
         self.aimove = False
+        self.game_ended = False
+        self.winner = False
         
         
         #spawn pawns on the second and seventh rows
@@ -70,8 +72,12 @@ class Board:
             print(moving)
             if (self.board[x][y] != None):
                 self.capturedpiecetype = self.board[x][y]
+                if(isinstance(self.board[x][y], king.King)):
+                    self.game_ended = True
+                    self.winner = not self.board[x][y].white
             else:
                 self.capturedpiecetype = None
+            #TODO: add check for castling so that the rook can be animated
             self.board[x][y] = self.board[self.currentpiece[0]][self.currentpiece[1]]
             self.board[self.currentpiece[0]][self.currentpiece[1]] = None
             self.board[x][y].made_first_move = True
@@ -81,7 +87,7 @@ class Board:
             self.previousmove = [x,y,-1,-1]
             self.currentpiece = [-1,-1]
             self.white = not self.white
-            self.currentp = (self.currentp + 1)%2
+            self.currentp = (self.currentp + 1)%2  
             return True
         else:
             print('invalid move')
