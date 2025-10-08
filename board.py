@@ -24,6 +24,7 @@ class Board:
         self.white = True
         self.aimove = False
         self.game_ended = False
+        self.pawn_promotion = False
         self.winner = False
         
         
@@ -65,11 +66,14 @@ class Board:
         #is the same piece that was examined earlier
         if (self.currentpiece == [-1,-1]):
             return False
+            
         elif (self.currentpiece == [x,y]):
             return False
+            
         elif ([x,y] in self.moves and self.board[self.currentpiece[0]][self.currentpiece[1]].white == self.white):
             moving = f"moving {self.currentpiece[0]},{self.currentpiece[1]} to {x},{y}"
             print(moving)
+            
             if (self.board[x][y] != None):
                 self.capturedpiecetype = self.board[x][y]
                 if(isinstance(self.board[x][y], king.King)):
@@ -82,6 +86,9 @@ class Board:
             self.board[self.currentpiece[0]][self.currentpiece[1]] = None
             self.board[x][y].made_first_move = True
             self.moves = []
+            
+            if ((x == 0 or x == 7) and isinstance(self.board[x][y], pawn.Pawn)):
+                self.pawn_promotion = True
             #store the previous piece locations and previous move so that we can animate the piece movement
             self.previouspiece = [self.currentpiece[0],self.currentpiece[1],-1,-1]
             self.previousmove = [x,y,-1,-1]
@@ -94,6 +101,21 @@ class Board:
             self.moves = []
             self.currentpiece = [-1,-1]
             return False
+            
+    def pawn_promote(self,promotion_value):
+        xpos = self.previousmove[0]
+        ypos = self.previousmove[1]
+        if (promotion_value == 0):
+            self.board[xpos][ypos] = queen.Queen(self.board[xpos][ypos].white, True)
+        elif (promotion_value == 1):
+            self.board[xpos][ypos] = knight.Knight(self.board[xpos][ypos].white, True)
+        elif (promotion_value == 2):
+            self.board[xpos][ypos] = rook.Rook(self.board[xpos][ypos].white, True)
+        elif (promotion_value == 3):
+            self.board[xpos][ypos] = bishop.Bishop(self.board[xpos][ypos].white, True)
+        self.pawn_promotion = False
+            
+    
     def start_turn(self):
         #generate all moves at the start of the turn
         #TODO: generate the moves for current players king last so that
