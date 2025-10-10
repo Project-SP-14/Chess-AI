@@ -51,6 +51,8 @@ winp2 = 0
 moving_steps = [0,0,-1,-1]
 #tracks how many frames the piece has moved for
 timer = 1
+b_loaded_state = None
+b_loaded_player = 0
     
 #finds the correct sprite for the piece
 def draw_pieces(piece):
@@ -127,13 +129,42 @@ while True:
                             if (result):
                                 turn_started = False
                                 move_played = True
-                                moving_steps = [((b.previousmove[0]-b.previouspiece[0])*base/30),((b.previousmove[1]-b.previouspiece[1])*base/30),((b.previousmove[2]-b.previouspiece[2])*base/30),((b.previousmove[2]-b.previouspiece[2])*base/30)]
+                                moving_steps = [((b.previousmove[0]-b.previouspiece[0])*base/30),((b.previousmove[1]-b.previouspiece[1])*base/30),((b.previousmove[2]-b.previouspiece[2])*base/30),((b.previousmove[3]-b.previouspiece[3])*base/30)]
                             else:
                                 b.examine(row, column)
+                    elif(mpos[0] >= 1056 and mpos[0] <= 1248):
+                        if (mpos[1] >= 32 and mpos[1] <= 64):
+                            b.save_state()
                                 
                 elif(title_screen):
-                    print('make buttons for the title screen to set board args')
-                
+                    if(mpos[0] >= 192 and mpos[0] <= 1088):
+                        if (mpos[0] >= 512 and mpos[0] <= 768):
+                            if(mpos[1] >= 800 and mpos[1] <= 864):
+                                b.load_state()
+                                #replace this with a for loop that just makes a copy (not a reference) of the value in b.board = b_loaded_state
+                                b_loaded_state = list(b.board)
+                                if(b.white):
+                                    b_loaded_player = 0
+                                else:
+                                    b_loaded_player = 1
+                        if (mpos[1] >= 320 and mpos[1] <= 384):
+                            title_screen = False
+                            game_started = True
+                            b_args = [0,0,0,0]
+                            b = board.Board(0,0,0,0)
+                            if (b_loaded_state != None):
+                                b.board = list(b_loaded_state)
+                                b.white = (b_loaded_player == 0)
+                                b.currentp = b_loaded_player
+                        if (mpos[1] >= 416 and mpos[1] <= 480):
+                            title_screen = False
+                            game_started = True
+                            b_args = [0,1,0,0]
+                            b = board.Board(0,1,0,0)
+                            if (b_loaded_state != None):
+                                b.board = list(b_loaded_state)
+                                b.white = (b_loaded_player == 0)
+                                b.currentp = b_loaded_player
                                     
                 elif(game_ended):
                     print(mpos)
@@ -149,10 +180,13 @@ while True:
                             winner = False
                             #if loaded board state != None then load that board state
                             b = board.Board(b_args[0],b_args[1],b_args[2],b_args[3])
+                            if (b_loaded_state != None):
+                                b.board = list(b_loaded_state)
+                                b.white = (b_loaded_player == 0)
+                                b.currentp = b_loaded_player
                         
                         #return to title screen button
                         elif (mpos[1] >= 512 and mpos[1] <= 576):
-
                             turn_started = False
                             move_played = False
                             title_screen = True
@@ -163,6 +197,8 @@ while True:
                             winp1 = 0
                             winp2 = 0
                             b = board.Board(0,1,0,0)
+                            b_loaded_state = None
+                            b_loaded_player = 0
                         
                         
                 elif(pawn_promotion):
@@ -196,17 +232,16 @@ while True:
                                 if (result):
                                     turn_started = False
                                     move_played = True
-                                    moving_steps = [((b.previousmove[0]-b.previouspiece[0])*base/30),((b.previousmove[1]-b.previouspiece[1])*base/30),((b.previousmove[2]-b.previouspiece[2])*base/30),((b.previousmove[2]-b.previouspiece[2])*base/30)]
+                                    moving_steps = [((b.previousmove[0]-b.previouspiece[0])*base/30),((b.previousmove[1]-b.previouspiece[1])*base/30),((b.previousmove[2]-b.previouspiece[2])*base/30),((b.previousmove[3]-b.previouspiece[3])*base/30)]
                                 else:
                                     b.examine(row, column)
 
     if(title_screen):
-        screen.fill(white)
-        timer = timer + 1
-        if (timer == 60):
-            timer = 1
-            title_screen = False
-            game_started = True
+        screen.fill(blue)
+        pygame.draw.rect(screen,(100,100,100),pygame.Rect(128, 128, 1024, 768))
+        pygame.draw.rect(screen,white,pygame.Rect(192, 320, 896, 64))
+        pygame.draw.rect(screen,white,pygame.Rect(192, 416, 896, 64))
+        pygame.draw.rect(screen,white,pygame.Rect(512, 800, 256,64))
     
     elif (pawn_promotion):
         draw_board(screen, board)
@@ -299,8 +334,7 @@ while True:
                 if(b.board[x][y] != None):
                     sprite = draw_pieces(b.board[x][y])
                     screen.blit(sprite,(y*base,x*base))
-                    
-                    
+                                  
         #TODO: draw text onto the buttons
         pygame.draw.rect(screen,blue,pygame.Rect(256, 256, 512, 512))
         #replay game
@@ -320,6 +354,7 @@ while True:
     #only let these areas be interacted when game_started is true and the board is under human control
     if (not title_screen):
         pygame.draw.rect(screen,blue,pygame.Rect(1024, 0, 256, 1024))
+        pygame.draw.rect(screen, white, pygame.Rect(1056,32,192,32))
         
     
     pygame.display.flip()

@@ -5,6 +5,9 @@ import knight
 import bishop
 import queen
 import aiplayer
+import time
+import tkinter as tk
+from tkinter import filedialog
 
 class Board:
     def __init__(self, player1, player2, arg1, arg2):
@@ -26,6 +29,7 @@ class Board:
         self.game_ended = False
         self.pawn_promotion = False
         self.winner = False
+        self.move_list = []
         
         
         #spawn pawns on the second and seventh rows
@@ -90,8 +94,20 @@ class Board:
             if ((x == 0 or x == 7) and isinstance(self.board[x][y], pawn.Pawn)):
                 self.pawn_promotion = True
             #store the previous piece locations and previous move so that we can animate the piece movement
-            self.previouspiece = [self.currentpiece[0],self.currentpiece[1],-1,-1]
-            self.previousmove = [x,y,-1,-1]
+            if (isinstance(self.board[x][y], king.King) and (y == 2 or y == 6) and self.currentpiece[1] == 4):
+                if (y == 2):
+                    self.board[x][3] = self.board[x][0]
+                    self.board[x][0] = None
+                    self.previouspiece = [self.currentpiece[0],self.currentpiece[1],self.currentpiece[0],0]
+                    self.previousmove = [x,y,x,3]
+                elif (y == 6):
+                    self.board[x][5] = self.board[x][7]
+                    self.board[x][7] = None
+                    self.previouspiece = [self.currentpiece[0],self.currentpiece[1],self.currentpiece[0],7]
+                    self.previousmove = [x,y,x,5]
+            else:   
+                self.previouspiece = [self.currentpiece[0],self.currentpiece[1],-1,-1]
+                self.previousmove = [x,y,-1,-1]
             self.currentpiece = [-1,-1]
             self.white = not self.white
             self.currentp = (self.currentp + 1)%2  
@@ -132,3 +148,118 @@ class Board:
             self.moves = self.board[move[0]][move[1]].moves
             if(self.play_move(move[2],move[3])):
                 self.aimove = True
+                
+    def save_state(self):
+        saved_state = int(time.mktime(time.localtime()))
+        file_name = f'{saved_state}.txt'
+        with open(f'{file_name}','w') as f:
+            if (self.white):
+                f.writelines('True\n')
+            else:
+                f.writelines('False\n')
+            for x in range(8):
+                for y in range(8):
+                        if(isinstance(self.board[x][y], pawn.Pawn)):
+                            if (self.board[x][y].white == True):
+                                f.writelines('wpawn\n')
+                            if (self.board[x][y].white == False):
+                                f.writelines('bpawn\n')
+                        elif(isinstance(self.board[x][y], rook.Rook)):
+                            if (self.board[x][y].white == True):
+                                f.writelines('wrook\n')
+                            if (self.board[x][y].white == False):
+                                f.writelines('brook\n')
+                        elif(isinstance(self.board[x][y], bishop.Bishop)):
+                            if (self.board[x][y].white == True):
+                                f.writelines('wbishop\n')
+                            if (self.board[x][y].white == False):
+                                f.writelines('bbishop\n')
+                        elif(isinstance(self.board[x][y], knight.Knight)):
+                            if (self.board[x][y].white == True):
+                                f.writelines('wknight\n')
+                            if (self.board[x][y].white == False):
+                                f.writelines('bknight\n')
+                        elif(isinstance(self.board[x][y], queen.Queen)):
+                            if (self.board[x][y].white == True):
+                                f.writelines('wqueen\n')
+                            if (self.board[x][y].white == False):
+                                f.writelines('bqueen\n')
+                        elif(isinstance(self.board[x][y], king.King)):
+                            if (self.board[x][y].white == True):
+                                f.writelines('wking\n')
+                            if (self.board[x][y].white == False):
+                                f.writelines('bking\n')
+                        else:
+                            f.writelines('None\n')
+                        if (self.board[x][y] != None):
+                            if (self.board[x][y].made_first_move):
+                                f.writelines('True\n')
+                            else:
+                                f.writelines('False\n')
+            f.close()
+            
+            
+    def load_state(self):
+        root = tk.Tk()
+        root.withdraw()
+
+        file_path = filedialog.askopenfilename()
+        checking_turn = True
+        x = 0
+        y = 0
+        with open(f'{file_path}', 'r') as f:
+            for line in f:
+                set_piece = False
+                if(checking_turn):
+                    if line == 'True\n':
+                        self.white = True
+                    else:
+                        self.white = False
+                    checking_turn = False  
+                elif line == 'None\n':
+                    self.board[x][y] = None
+                    set_piece = True
+                    
+                elif line == 'bpawn\n':
+                    self.board[x][y] = pawn.Pawn(False,False)
+                elif line == 'wpawn\n':
+                    self.board[x][y] = pawn.Pawn(True,False)
+                    
+                elif line == 'brook\n':
+                    self.board[x][y] = rook.Rook(False,False)
+                elif line == 'wrook\n':
+                    self.board[x][y] = rook.Rook(True,False)
+                    
+                elif line == 'bknight\n':
+                    self.board[x][y] == knight.Knight(False,False)
+                elif line == 'wknight\n':
+                    self.board[x][y] = knight.Knight(True,False)
+                    
+                elif line == 'bbishop\n':
+                    self.board[x][y] = bishop.Bishop(False,False)
+                elif line == 'wbishop\n':
+                    self.board[x][y] = bishop.Bishop(True,False)
+                    
+                elif line == 'bqueen\n':
+                    self.board[x][y] = queen.Queen(False,False)
+                elif line == 'wqueen\n':
+                    self.board[x][y] = queen.Queen(True,False)
+                    
+                elif line == 'bking\n':
+                    self.board[x][y] = king.King(False,False)
+                elif line == 'wking\n':
+                    self.board[x][y] = king.King(True,False)
+                    
+                elif line == 'True\n':
+                    set_piece = True
+                    self.board[x][y].made_first_move = True
+                elif line == 'False\n':
+                    set_piece = True
+                    self.board[x][y].made_first_move = False
+                
+                if set_piece:
+                    y += 1
+                    if (y == 8):
+                        x += 1
+                    y = y%8
+        f.close()
