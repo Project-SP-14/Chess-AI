@@ -85,7 +85,6 @@ class Board:
                     self.winner = not self.board[x][y].white
             else:
                 self.capturedpiecetype = None
-            #TODO: add check for castling so that the rook can be animated
             self.board[x][y] = self.board[self.currentpiece[0]][self.currentpiece[1]]
             self.board[self.currentpiece[0]][self.currentpiece[1]] = None
             self.board[x][y].made_first_move = True
@@ -113,7 +112,6 @@ class Board:
             self.currentp = (self.currentp + 1)%2  
             return True
         else:
-            print('invalid move')
             self.moves = []
             self.currentpiece = [-1,-1]
             return False
@@ -136,10 +134,41 @@ class Board:
         #generate all moves at the start of the turn
         #TODO: generate the moves for current players king last so that
         #we can check if the king would be put in danger
+        bk = []
+        wk = []
+        whitemoves = []
+        blackmoves = []
         for x in range(8):
             for y in range(8):
                 if self.board[x][y] != None:
-                    self.board[x][y].generate_moves(x,y, self.board)
+                    if(not isinstance(self.board[x][y], king.King)):
+                        p_moves = self.board[x][y].generate_moves(x,y, self.board)
+                        if (self.board[x][y].white):
+                            for m in p_moves:
+                                if not m in whitemoves:
+                                    whitemoves.append(m)
+                        else:
+                            for m in p_moves:
+                                if not m in blackmoves:
+                                    blackmoves.append(m)
+                    else:
+                        if self.board[x][y].white:
+                            wk = [self.board[x][y],x,y]
+                        else:
+                            bk = [self.board[x][y],x,y]
+        if (self.white):
+            p_moves = bk[0].generate_moves(bk[1],bk[2],self.board,whitemoves)
+            for m in p_moves:
+                if not x in blackmoves:
+                    blackmoves.append(x)
+            wk[0].generate_moves(wk[1],wk[2],self.board,blackmoves)
+        else:
+            p_moves = wk[0].generate_moves(wk[1],wk[2],self.board,blackmoves) 
+            for m in p_moves:
+                if not x in whitemoves:
+                    whitemoves.append(x)
+            bk[0].generate_moves(bk[1],bk[2],self.board,whitemoves)
+        
         #if a player is an AI then generate a move based on the difficulty
         if (self.players[self.currentp] == 1):
             ai = aiplayer.AI(self.players[self.currentp+2])
@@ -199,11 +228,14 @@ class Board:
             f.close()
             
             
-    def load_state(self):
+    def load_state(self, fp):
         root = tk.Tk()
         root.withdraw()
-
-        file_path = filedialog.askopenfilename()
+        file_path = None
+        if fp == None:
+            file_path = filedialog.askopenfilename() 
+        else:
+            file_path = fp
         checking_turn = True
         x = 0
         y = 0
@@ -231,7 +263,7 @@ class Board:
                     self.board[x][y] = rook.Rook(True,False)
                     
                 elif line == 'bknight\n':
-                    self.board[x][y] == knight.Knight(False,False)
+                    self.board[x][y] = knight.Knight(False,False)
                 elif line == 'wknight\n':
                     self.board[x][y] = knight.Knight(True,False)
                     
@@ -262,4 +294,4 @@ class Board:
                     if (y == 8):
                         x += 1
                     y = y%8
-        f.close()
+        return file_path

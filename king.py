@@ -8,7 +8,7 @@ class King:
     
     #TODO: add a check to make sure king cant move to a spot 
     #if that position is in the opposite sides valid move list
-    def generate_moves(self, x, y, board):
+    def generate_moves(self, x, y, board, enemymoves):
         self.moves = []
         xplus = x + 1 < 8
         xminus = x - 1 > -1
@@ -46,11 +46,15 @@ class King:
                     valid = True
                     if (board[7][5] != None or board[7][6] != None):
                         valid = False
+                    if ([7,5] in enemymoves or [7,6] in enemymoves or [7,4] in enemymoves):
+                        valid = False
                     if (valid):
                         self.moves.append([7,6])
                 if (board[7][0] != None and board[7][0].made_first_move == False):
                     valid = True
                     if (board[7][3] != None or board[7][2] != None or board[7][1] != None):
+                        valid = False
+                    if ([7,3] in enemymoves or [7,2] in enemymoves or [7,4] in enemymoves):
                         valid = False
                     if (valid):
                         self.moves.append([7,2])
@@ -59,11 +63,15 @@ class King:
                     valid = True
                     if (board[0][5] != None or board[0][6] != None):
                         valid = False
+                    if ([0,5] in enemymoves or [0,6] in enemymoves or [0,4] in enemymoves):
+                        valid = False
                     if (valid):
                         self.moves.append([0,6])
                 if (board[0][0] != None and board[0][0].made_first_move == False):
                     valid = True
                     if (board[0][3] != None or board[0][2] != None or board[0][1] != None):
+                        valid = False
+                    if ([0,3] in enemymoves or [0,2] in enemymoves or [0,4] in enemymoves):
                         valid = False
                     if (valid):
                         self.moves.append([0,2])

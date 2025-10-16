@@ -12,12 +12,12 @@ pygame.init()
 pygame.freetype.init()
 base = 128
 fontt = pygame.font.SysFont(None,32)
-#TODO?: potentially make piece sizes of 100*100 and 80*80 so that the resolution can be changed to 1000 * 800 and 800 * 640
-#would also need to define the size of 
+#colors
 black = 0, 0, 0
 white = 255, 255, 255
 green = 0, 128, 0
 blue = 0,0,128
+gray = 100,100,100
 bpawn = pygame.image.load('./images/bpawn.png')
 wpawn = pygame.image.load('./images/wpawn.png')
 brook = pygame.image.load('./images/brook.png')
@@ -38,12 +38,14 @@ clock = pygame.time.Clock()
 b = board.Board(0,1,0,0)
 #holds the last used set of board arguments to use when recreating the board on a replay
 b_args = [0,1,0,0]
+#game states
 turn_started = False
 move_played = False
 title_screen = True
 game_started = False
 game_ended = False
 pawn_promotion = False
+#win/lose information
 winner = False
 winp1 = 0
 winp2 = 0
@@ -51,9 +53,41 @@ winp2 = 0
 moving_steps = [0,0,-1,-1]
 #tracks how many frames the piece has moved for
 timer = 1
-b_loaded_state = None
 b_loaded_player = 0
-    
+b_loaded_file = None
+pvsaidiff = 0
+aivaidiff1 = 0
+aivaidiff2 = 0
+
+#buttons for title screen
+localpvp = pygame.Rect(192, 320, 416, 64)
+onlinepvp = pygame.Rect(672,320, 416, 64)
+localpvai = pygame.Rect(192, 416, 416, 64)
+pvaieasydiff = pygame.Rect(640,416,128,64)
+pvaimeddiff = pygame.Rect(800,416,128,64)
+pvaiharddiff = pygame.Rect(960,416,128,64)
+loadstate = pygame.Rect(512, 800, 256,64)
+aivsai = pygame.Rect(192, 512, 896, 64)
+aivsaie1 = pygame.Rect(192, 608, 128, 64)
+aivsaim1 = pygame.Rect(352, 608, 128, 64)
+aivsaih1 = pygame.Rect(512, 608, 128, 64)
+aivsaie2 = pygame.Rect(672, 608, 128, 64)
+aivsaim2 = pygame.Rect(832, 608, 128, 64)
+aivsaih2 = pygame.Rect(992, 608, 128, 64)
+
+#pawn promotion buttons
+queenback = pygame.Rect(160, 448, 128, 128)
+knightback = pygame.Rect(352, 448, 128, 128)
+rookback  = pygame.Rect(544, 448, 128, 128)
+bishopback = pygame.Rect(736, 448, 128, 128)
+
+#victory screen buttons
+replaybutton = pygame.Rect(320,416,384,64)
+totitle = pygame.Rect(320,512,384,64)
+
+#sidebar buttons
+savestate = pygame.Rect(1056,32,192,32)
+
 #finds the correct sprite for the piece
 def draw_pieces(piece):
     if(isinstance(piece, pawn.Pawn)):
@@ -124,7 +158,6 @@ while True:
                         if (b.currentpiece == [-1,-1]):
                             b.examine(row,column)
                         else:
-                            print('attempting to play move')
                             result = b.play_move(row,column)
                             if (result):
                                 turn_started = False
@@ -132,61 +165,90 @@ while True:
                                 moving_steps = [((b.previousmove[0]-b.previouspiece[0])*base/30),((b.previousmove[1]-b.previouspiece[1])*base/30),((b.previousmove[2]-b.previouspiece[2])*base/30),((b.previousmove[3]-b.previouspiece[3])*base/30)]
                             else:
                                 b.examine(row, column)
-                    elif(mpos[0] >= 1056 and mpos[0] <= 1248):
-                        if (mpos[1] >= 32 and mpos[1] <= 64):
-                            b.save_state()
+                    elif(savestate.collidepoint(mpos)):
+                        b.save_state()
                                 
                 elif(title_screen):
-                    if(mpos[0] >= 192 and mpos[0] <= 1088):
-                        if (mpos[0] >= 512 and mpos[0] <= 768):
-                            if(mpos[1] >= 800 and mpos[1] <= 864):
-                                b.load_state()
-                                #replace this with a for loop that just makes a copy (not a reference) of the value in b.board = b_loaded_state
-                                b_loaded_state = list(b.board)
+                        if(loadstate.collidepoint(mpos)):
+                                b_loaded_file = b.load_state(b_loaded_file)
                                 if(b.white):
                                     b_loaded_player = 0
                                 else:
                                     b_loaded_player = 1
-                        if (mpos[1] >= 320 and mpos[1] <= 384):
+                        #starts local player versus player game
+                        elif (localpvp.collidepoint(mpos)):
                             title_screen = False
                             game_started = True
                             b_args = [0,0,0,0]
                             b = board.Board(0,0,0,0)
-                            if (b_loaded_state != None):
-                                b.board = list(b_loaded_state)
-                                b.white = (b_loaded_player == 0)
+                            #if there is a loaded board state then put it into the board object
+                            if (b_loaded_file != None):
+                                b.load_state(b_loaded_file)
                                 b.currentp = b_loaded_player
-                        if (mpos[1] >= 416 and mpos[1] <= 480):
+                        elif (onlinepvp.collidepoint(mpos)):
+                            print('online is not implemented')
+                        #starts player versus ai game
+                        elif (localpvai.collidepoint(mpos)):
                             title_screen = False
                             game_started = True
-                            b_args = [0,1,0,0]
-                            b = board.Board(0,1,0,0)
-                            if (b_loaded_state != None):
-                                b.board = list(b_loaded_state)
-                                b.white = (b_loaded_player == 0)
+                            b_args = [0,1,0,pvsaidiff]
+                            b = board.Board(0,1,0,pvsaidiff)
+                            if (b_loaded_file != None):
+                                b.load_state(b_loaded_file)
                                 b.currentp = b_loaded_player
-                                    
+                        #selects ai difficulty for player versus ai
+                        elif(pvaieasydiff.collidepoint(mpos)):
+                            pvsaidiff = 0
+                        elif(pvaimeddiff.collidepoint(mpos)):
+                            pvsaidiff = 1
+                        elif(pvaiharddiff.collidepoint(mpos)):
+                            pvsaidiff = 2      
+                        #starts ai versus ai game
+                        elif(aivsai.collidepoint(mpos)):
+                            title_screen = False
+                            game_started = True
+                            b_args = [1,1,aivaidiff1,aivaidiff2]
+                            b = board.Board(1,1,aivaidiff1,aivaidiff2)
+                            if (b_loaded_file != None):
+                                b.load_state(b_loaded_file)
+                                b.currentp = b_loaded_player
+                        #select ai player 1 difficulty
+                        elif(aivsaie1):
+                            aivaidiff1 = 0
+                        elif(aivsaim1):
+                            aivaidiff1 = 1
+                        elif(aivsaih1):
+                            aivaidiff1 = 2
+                        #select ai player 2 difficulty
+                        elif(aivsaie2):
+                            aivaidiff2 = 0
+                        elif(aivsaim2):
+                            aivaidiff2 = 1
+                        elif(aivsaih2):
+                            aivaidiff2 = 2
+
+                            
                 elif(game_ended):
-                    print(mpos)
-                    if(mpos[0] >= 320 and mpos[0] <= 784):
-                        #replay game button
-                        if (mpos[1] >= 416 and mpos[1] <= 480):
-                            turn_started = False
-                            move_played = False
-                            title_screen = False
-                            game_started = True
-                            game_ended = False
-                            pawn_promotion = False
-                            winner = False
-                            #if loaded board state != None then load that board state
-                            b = board.Board(b_args[0],b_args[1],b_args[2],b_args[3])
-                            if (b_loaded_state != None):
-                                b.board = list(b_loaded_state)
-                                b.white = (b_loaded_player == 0)
-                                b.currentp = b_loaded_player
+                    #replay game button
+                    if (replaybutton.collidepoint(mpos)):
+                        turn_started = False
+                        move_played = False
+                        title_screen = False
+                        game_started = True
+                        game_ended = False
+                        pawn_promotion = False
+                        winner = False
+                        #if loaded board state != None then load that board state
+                        b = board.Board(b_args[0],b_args[1],b_args[2],b_args[3])
+                        if (b_loaded_file != None):
+                            b.load_state(b_loaded_file)
+                            if(b.white):
+                                b_loaded_player = 0
+                            else:
+                                b_loaded_player = 1
                         
-                        #return to title screen button
-                        elif (mpos[1] >= 512 and mpos[1] <= 576):
+                    #return to title screen button
+                    elif (totitle.collidepoint(mpos)):
                             turn_started = False
                             move_played = False
                             title_screen = True
@@ -197,28 +259,27 @@ while True:
                             winp1 = 0
                             winp2 = 0
                             b = board.Board(0,1,0,0)
-                            b_loaded_state = None
+                            b_loaded_file = None
                             b_loaded_player = 0
                         
                         
                 elif(pawn_promotion):
-                    if (mpos[1] >= 448 and mpos[1] <= 576):
-                        if (mpos[0] >= 160 and mpos[0] <= 288):   
+                    if (queenback.collidepoint(mpos)):   
                             b.pawn_promote(0)
                             pawn_promotion = False
                             game_started = True
-                        elif (mpos[0] >= 352 and mpos[0] <= 480):
-                            b.pawn_promote(1)
-                            pawn_promotion = False
-                            game_started = True
-                        elif (mpos[0] >= 544 and mpos[0] <= 672):
-                            b.pawn_promote(2)
-                            pawn_promotion = False
-                            game_started = True
-                        elif (mpos[0] >= 736 and mpos[0] <= 864):
-                            b.pawn_promote(3)
-                            pawn_promotion = False
-                            game_started = True
+                    elif (knightback.collidepoint(mpos)):
+                        b.pawn_promote(1)
+                        pawn_promotion = False
+                        game_started = True
+                    elif (rookback.collidepoint(mpos)):
+                        b.pawn_promote(2)
+                        pawn_promotion = False
+                        game_started = True
+                    elif (bishopback.collidepoint(mpos)):
+                        b.pawn_promote(3)
+                        pawn_promotion = False
+                        game_started = True
                                 
         elif event.type == pygame.MOUSEBUTTONUP:
                 mpos = pygame.mouse.get_pos()
@@ -238,11 +299,24 @@ while True:
 
     if(title_screen):
         screen.fill(blue)
-        pygame.draw.rect(screen,(100,100,100),pygame.Rect(128, 128, 1024, 768))
-        pygame.draw.rect(screen,white,pygame.Rect(192, 320, 896, 64))
-        pygame.draw.rect(screen,white,pygame.Rect(192, 416, 896, 64))
-        pygame.draw.rect(screen,white,pygame.Rect(512, 800, 256,64))
-    
+        pygame.draw.rect(screen,gray,pygame.Rect(128, 128, 1024, 768))
+        pygame.draw.rect(screen,white,localpvp)
+        pygame.draw.rect(screen,white,onlinepvp)
+        pygame.draw.rect(screen,white,pvaieasydiff)
+        pygame.draw.rect(screen,white,pvaimeddiff)
+        pygame.draw.rect(screen,white,pvaiharddiff)
+        pygame.draw.rect(screen,white,localpvai)
+        pygame.draw.rect(screen,white,loadstate)
+        pygame.draw.rect(screen,white,aivsai)
+        pygame.draw.rect(screen,white,aivsaie1)
+        pygame.draw.rect(screen,white,aivsaim1)
+        pygame.draw.rect(screen,white,aivsaih1)
+        pygame.draw.rect(screen,white,aivsaie2)
+        pygame.draw.rect(screen,white,aivsaim2)
+        pygame.draw.rect(screen,white,aivsaih2)
+
+
+        
     elif (pawn_promotion):
         draw_board(screen, board)
         for x in range(8):
@@ -253,22 +327,22 @@ while True:
                     
         pygame.draw.rect(screen,blue,pygame.Rect(128, 384, 768, 256))
         if(not b.white):
-            pygame.draw.rect(screen,black,pygame.Rect(160, 448, 128, 128))
+            pygame.draw.rect(screen,black,queenback)
             screen.blit(wqueen,(160,448))
-            pygame.draw.rect(screen,black,pygame.Rect(352, 448, 128, 128))
+            pygame.draw.rect(screen,black,knightback)
             screen.blit(wknight,(352,448))
-            pygame.draw.rect(screen,black,pygame.Rect(544, 448, 128, 128))
+            pygame.draw.rect(screen,black,rookback)
             screen.blit(wrook,(544,448))
-            pygame.draw.rect(screen,black,pygame.Rect(736, 448, 128, 128))
+            pygame.draw.rect(screen,black,bishopback)
             screen.blit(wbishop,(736,448))
         else:
-            pygame.draw.rect(screen,white,pygame.Rect(160, 448, 128, 128))
+            pygame.draw.rect(screen,white,queenback)
             screen.blit(bqueen,(160,448))
-            pygame.draw.rect(screen,white,pygame.Rect(352, 448, 128, 128))
+            pygame.draw.rect(screen,white,knightback)
             screen.blit(bknight,(352,448))
-            pygame.draw.rect(screen,white,pygame.Rect(544, 448, 128, 128))
+            pygame.draw.rect(screen,white,rookback)
             screen.blit(brook,(544,448))
-            pygame.draw.rect(screen,white,pygame.Rect(736, 448, 128, 128))
+            pygame.draw.rect(screen,white,bishopback)
             screen.blit(bbishop,(736,448))
             
             
@@ -277,7 +351,7 @@ while True:
     elif(game_started): 
         if(turn_started == False and move_played == False):
             b.start_turn()
-            turn_started == True
+            turn_started = True
         #if ai moved last turn then animate its move
         if(b.aimove == True):
             turn_started = False
@@ -306,7 +380,6 @@ while True:
                         screen.blit(sprite,(y*base,x*base))
                     
         if (timer == 30):
-            print('finished move')
             move_played = False
             if (b.game_ended):
                 game_started = False
@@ -338,9 +411,9 @@ while True:
         #TODO: draw text onto the buttons
         pygame.draw.rect(screen,blue,pygame.Rect(256, 256, 512, 512))
         #replay game
-        pygame.draw.rect(screen,white,pygame.Rect(320,416,384,64))
+        pygame.draw.rect(screen,white,replaybutton)
         #to title screen
-        pygame.draw.rect(screen,white,pygame.Rect(320,512,384,64))
+        pygame.draw.rect(screen,white,totitle)
         score = f'{winp1} - {winp2}'
         scoremsg = fontt.render(score,True, (250, 250, 250))
         if (winner == True):
@@ -354,7 +427,7 @@ while True:
     #only let these areas be interacted when game_started is true and the board is under human control
     if (not title_screen):
         pygame.draw.rect(screen,blue,pygame.Rect(1024, 0, 256, 1024))
-        pygame.draw.rect(screen, white, pygame.Rect(1056,32,192,32))
+        pygame.draw.rect(screen, white,savestate)
         
     
     pygame.display.flip()
