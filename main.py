@@ -61,13 +61,21 @@ aivaidiff2 = 0
 
 #buttons for title screen
 localpvp = pygame.Rect(192, 320, 416, 64)
+localpvpmsg = fontt.render('Local Player versus Player', True, black)
 onlinepvp = pygame.Rect(672,320, 416, 64)
+onlinepvpmsg = fontt.render('Online Player versus Player', True, black)
 localpvai = pygame.Rect(192, 416, 416, 64)
+localpvaimsg = fontt.render('Player versus AI', True, black)
 pvaieasydiff = pygame.Rect(640,416,128,64)
+easydiffmsg = fontt.render('Easy', True, black)
 pvaimeddiff = pygame.Rect(800,416,128,64)
+meddiffmsg = fontt.render('Medium', True, black)
 pvaiharddiff = pygame.Rect(960,416,128,64)
+harddiffmsg = fontt.render('Hard', True, black)
 loadstate = pygame.Rect(512, 800, 256,64)
+loadstatemsg = fontt.render('Load State', True, black)
 aivsai = pygame.Rect(192, 512, 896, 64)
+aivaimsg = fontt.render('AI versus AI', True, black)
 aivsaie1 = pygame.Rect(192, 608, 128, 64)
 aivsaim1 = pygame.Rect(352, 608, 128, 64)
 aivsaih1 = pygame.Rect(512, 608, 128, 64)
@@ -83,10 +91,13 @@ bishopback = pygame.Rect(736, 448, 128, 128)
 
 #victory screen buttons
 replaybutton = pygame.Rect(320,416,384,64)
+replaymsg = fontt.render('Replay Game', True, black)
 totitle = pygame.Rect(320,512,384,64)
+titlemsg = fontt.render('Return to Title Screen', True, black)
 
 #sidebar buttons
 savestate = pygame.Rect(1056,32,192,32)
+savestatemsg = fontt.render('Save State', True, black)
 
 #finds the correct sprite for the piece
 def draw_pieces(piece):
@@ -301,19 +312,33 @@ while True:
         screen.fill(blue)
         pygame.draw.rect(screen,gray,pygame.Rect(128, 128, 1024, 768))
         pygame.draw.rect(screen,white,localpvp)
+        screen.blit(localpvpmsg,(192, 320))
         pygame.draw.rect(screen,white,onlinepvp)
+        screen.blit(onlinepvpmsg,(672,320))
         pygame.draw.rect(screen,white,pvaieasydiff)
+        screen.blit(easydiffmsg,(640,416))
         pygame.draw.rect(screen,white,pvaimeddiff)
+        screen.blit(meddiffmsg,(800,416))
         pygame.draw.rect(screen,white,pvaiharddiff)
+        screen.blit(harddiffmsg,(960,416))
         pygame.draw.rect(screen,white,localpvai)
+        screen.blit(localpvaimsg,(192, 416))
         pygame.draw.rect(screen,white,loadstate)
+        screen.blit(loadstatemsg,(512, 800))
         pygame.draw.rect(screen,white,aivsai)
+        screen.blit(aivaimsg,(192, 512))
         pygame.draw.rect(screen,white,aivsaie1)
+        screen.blit(easydiffmsg,(192, 608))
         pygame.draw.rect(screen,white,aivsaim1)
+        screen.blit(meddiffmsg,(352, 608))
         pygame.draw.rect(screen,white,aivsaih1)
+        screen.blit(harddiffmsg,(512, 608))
         pygame.draw.rect(screen,white,aivsaie2)
+        screen.blit(easydiffmsg,(672, 608))
         pygame.draw.rect(screen,white,aivsaim2)
+        screen.blit(meddiffmsg,(832, 608))
         pygame.draw.rect(screen,white,aivsaih2)
+        screen.blit(harddiffmsg,(992, 608))
 
 
         
@@ -412,14 +437,16 @@ while True:
         pygame.draw.rect(screen,blue,pygame.Rect(256, 256, 512, 512))
         #replay game
         pygame.draw.rect(screen,white,replaybutton)
+        screen.blit(replaymsg,(320,416))
         #to title screen
         pygame.draw.rect(screen,white,totitle)
+        screen.blit(titlemsg,(320,512))
         score = f'{winp1} - {winp2}'
         scoremsg = fontt.render(score,True, (250, 250, 250))
         if (winner == True):
-            victorymsg = fontt.render('Player 1 Wins', True, (250, 250, 250))
+            victorymsg = fontt.render('Player 1 Wins', True, white)
         else:
-            victorymsg = fontt.render('Player 2 Wins', True, (250, 250, 250))
+            victorymsg = fontt.render('Player 2 Wins', True, white)
         screen.blit(victorymsg,(320,320))
         screen.blit(scoremsg,(320,384))
         
@@ -428,6 +455,7 @@ while True:
     if (not title_screen):
         pygame.draw.rect(screen,blue,pygame.Rect(1024, 0, 256, 1024))
         pygame.draw.rect(screen, white,savestate)
+        screen.blit(savestatemsg,(1056,32))
         
     
     pygame.display.flip()
