@@ -107,9 +107,10 @@ class Board:
             else:   
                 self.previouspiece = [self.currentpiece[0],self.currentpiece[1],-1,-1]
                 self.previousmove = [x,y,-1,-1]
+            self.move_list.append([self.currentpiece[0],self.currentpiece[1],x,y])
             self.currentpiece = [-1,-1]
             self.white = not self.white
-            self.currentp = (self.currentp + 1)%2  
+            self.currentp = (self.currentp + 1)%2 
             return True
         else:
             self.moves = []
@@ -295,3 +296,18 @@ class Board:
                         x += 1
                     y = y%8
         return file_path
+        
+    def save_match(self, fp):
+        saved_state = int(time.mktime(time.localtime()))
+        file_name = f'match-{saved_state}.txt'
+        print(fp)
+        with open(f'{file_name}','w') as f:
+            if fp == None:
+                f.writelines('Default\n')
+            else:
+                with open(f'{fp}','r') as initstate:
+                    for line in initstate:
+                        f.writelines(line)
+                    initstate.close()
+            for movez in self.move_list:
+                f.writelines(f'{movez[0]} {movez[1]} {movez[2]} {movez[3]}\n')

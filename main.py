@@ -7,6 +7,7 @@ import king
 import knight
 import bishop
 import time
+import matchloader
 
 pygame.init()
 pygame.freetype.init()
@@ -38,6 +39,9 @@ clock = pygame.time.Clock()
 b = board.Board(0,1,0,0)
 #holds the last used set of board arguments to use when recreating the board on a replay
 b_args = [0,1,0,0]
+matchl = matchloader.MatchLoader()
+matchlstate = 0
+
 #game states
 turn_started = False
 move_played = False
@@ -45,6 +49,8 @@ title_screen = True
 game_started = False
 game_ended = False
 pawn_promotion = False
+match_state_selector = False
+
 #win/lose information
 winner = False
 winp1 = 0
@@ -74,6 +80,8 @@ pvaiharddiff = pygame.Rect(960,416,128,64)
 harddiffmsg = fontt.render('Hard', True, black)
 loadstate = pygame.Rect(512, 800, 256,64)
 loadstatemsg = fontt.render('Load State', True, black)
+loadmatch = pygame.Rect(512, 704, 256,64)
+loadmatchmsg = fontt.render('Load match', True, black)
 aivsai = pygame.Rect(192, 512, 896, 64)
 aivaimsg = fontt.render('AI versus AI', True, black)
 aivsaie1 = pygame.Rect(192, 608, 128, 64)
@@ -94,10 +102,20 @@ replaybutton = pygame.Rect(320,416,384,64)
 replaymsg = fontt.render('Replay Game', True, black)
 totitle = pygame.Rect(320,512,384,64)
 titlemsg = fontt.render('Return to Title Screen', True, black)
+savematch = pygame.Rect(320,608,384,64)
+savematchmsg = fontt.render('Save Match to File', True, black)
 
 #sidebar buttons
 savestate = pygame.Rect(1056,32,192,32)
 savestatemsg = fontt.render('Save State', True, black)
+
+#match_state_selector sidebar
+backstate = pygame.Rect(1056,960,64,32)
+backstatemsg = fontt.render('<', True, black)
+forwardstate = pygame.Rect(1152,960,64,32)
+forwardstatemsg = fontt.render('>', True, black)
+exitbutton = pygame.Rect(1056,896,192,32)
+exitmsg = fontt.render('Exit', True, black)
 
 #finds the correct sprite for the piece
 def draw_pieces(piece):
@@ -178,6 +196,7 @@ while True:
                                 b.examine(row, column)
                     elif(savestate.collidepoint(mpos)):
                         b.save_state()
+
                                 
                 elif(title_screen):
                         if(loadstate.collidepoint(mpos)):
@@ -186,6 +205,11 @@ while True:
                                     b_loaded_player = 0
                                 else:
                                     b_loaded_player = 1
+                        elif(loadmatch.collidepoint(mpos)):
+                            matchl.load_match()
+                            match_state_selector = True
+                            title_screen = False
+                            
                         #starts local player versus player game
                         elif (localpvp.collidepoint(mpos)):
                             title_screen = False
@@ -196,8 +220,10 @@ while True:
                             if (b_loaded_file != None):
                                 b.load_state(b_loaded_file)
                                 b.currentp = b_loaded_player
+                                
                         elif (onlinepvp.collidepoint(mpos)):
                             print('online is not implemented')
+                            
                         #starts player versus ai game
                         elif (localpvai.collidepoint(mpos)):
                             title_screen = False
@@ -214,6 +240,7 @@ while True:
                             pvsaidiff = 1
                         elif(pvaiharddiff.collidepoint(mpos)):
                             pvsaidiff = 2      
+                            
                         #starts ai versus ai game
                         elif(aivsai.collidepoint(mpos)):
                             title_screen = False
@@ -223,6 +250,7 @@ while True:
                             if (b_loaded_file != None):
                                 b.load_state(b_loaded_file)
                                 b.currentp = b_loaded_player
+                                
                         #select ai player 1 difficulty
                         elif(aivsaie1):
                             aivaidiff1 = 0
@@ -237,7 +265,20 @@ while True:
                             aivaidiff2 = 1
                         elif(aivsaih2):
                             aivaidiff2 = 2
-
+                            
+                elif(match_state_selector):
+                    if (backstate.collidepoint(mpos)):
+                        if matchlstate > 0:
+                            matchlstate -= 1
+                    elif (forwardstate.collidepoint(mpos)):
+                        if matchlstate < (len(matchl.boardlist)-1):
+                            print(matchlstate)
+                            matchlstate += 1
+                    elif (savestate.collidepoint(mpos)):
+                        matchl.boardlist[matchlstate].save_state()
+                    elif(exitbutton.collidepoint(mpos)):
+                        title_screen = True
+                        match_state_selector = False
                             
                 elif(game_ended):
                     #replay game button
@@ -272,6 +313,8 @@ while True:
                             b = board.Board(0,1,0,0)
                             b_loaded_file = None
                             b_loaded_player = 0
+                    elif(savematch.collidepoint(mpos)):
+                        b.save_match(b_loaded_file)
                         
                         
                 elif(pawn_promotion):
@@ -339,9 +382,19 @@ while True:
         screen.blit(meddiffmsg,(832, 608))
         pygame.draw.rect(screen,white,aivsaih2)
         screen.blit(harddiffmsg,(992, 608))
+        pygame.draw.rect(screen,white,loadmatch)
+        screen.blit(loadmatchmsg,(512, 704))
 
-
-        
+    
+    elif (match_state_selector):
+        draw_board(screen, b)
+        for x in range(8):
+            for y in range(8):
+                if(matchl.boardlist[matchlstate].board[x][y] != None):
+                    sprite = draw_pieces(matchl.boardlist[matchlstate].board[x][y])
+                    screen.blit(sprite,(y*base,x*base))
+       
+       
     elif (pawn_promotion):
         draw_board(screen, board)
         for x in range(8):
@@ -433,7 +486,6 @@ while True:
                     sprite = draw_pieces(b.board[x][y])
                     screen.blit(sprite,(y*base,x*base))
                                   
-        #TODO: draw text onto the buttons
         pygame.draw.rect(screen,blue,pygame.Rect(256, 256, 512, 512))
         #replay game
         pygame.draw.rect(screen,white,replaybutton)
@@ -441,6 +493,8 @@ while True:
         #to title screen
         pygame.draw.rect(screen,white,totitle)
         screen.blit(titlemsg,(320,512))
+        pygame.draw.rect(screen,white,savematch)
+        screen.blit(savematchmsg,(320,608))
         score = f'{winp1} - {winp2}'
         scoremsg = fontt.render(score,True, (250, 250, 250))
         if (winner == True):
@@ -450,13 +504,20 @@ while True:
         screen.blit(victorymsg,(320,320))
         screen.blit(scoremsg,(320,384))
         
+        
     #if we are not on the title screen then we always draw the save state and current board info area
     #only let these areas be interacted when game_started is true and the board is under human control
     if (not title_screen):
         pygame.draw.rect(screen,blue,pygame.Rect(1024, 0, 256, 1024))
         pygame.draw.rect(screen, white,savestate)
         screen.blit(savestatemsg,(1056,32))
-        
+        if (match_state_selector):
+            pygame.draw.rect(screen,white,backstate)
+            screen.blit(backstatemsg,(1056,960))
+            pygame.draw.rect(screen,white,forwardstate)
+            screen.blit(forwardstatemsg,(1152,960))
+            pygame.draw.rect(screen,white,exitbutton)
+            screen.blit(exitmsg,(1056,896))
     
     pygame.display.flip()
     clock.tick(60)
