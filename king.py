@@ -6,8 +6,6 @@ class King:
         self.white = white
         self.made_first_move = first_move
     
-    #TODO: add a check to make sure king cant move to a spot 
-    #if that position is in the opposite sides valid move list
     def generate_moves(self, x, y, board, enemymoves):
         self.moves = []
         xplus = x + 1 < 8
@@ -16,28 +14,36 @@ class King:
         yminus = y - 1 > -1
         if (xplus):
             if (board[x+1][y] == None or board[x+1][y].white == (not self.white)):
-                self.moves.append([x+1,y])
+                if([x+1,y] not in enemymoves):
+                    self.moves.append([x+1,y])
             if (yminus):
                 if (board[x+1][y-1] == None or board[x+1][y-1].white == (not self.white)):
-                    self.moves.append([x+1,y-1])
+                    if([x+1,y-1] not in enemymoves):
+                        self.moves.append([x+1,y-1])
             if (yplus):
                 if (board[x+1][y+1] == None or board[x+1][y+1].white == (not self.white)):
-                    self.moves.append([x+1,y+1])
+                    if([x+1,y+1] not in enemymoves):                    
+                        self.moves.append([x+1,y+1])
         if (xminus):
             if (board[x-1][y] == None or board[x-1][y].white == (not self.white)):
-                self.moves.append([x-1,y])
+                if([x-1,y] not in enemymoves):
+                    self.moves.append([x-1,y])
             if (yminus):
                 if (board[x-1][y-1] == None or board[x-1][y-1].white == (not self.white)):
-                    self.moves.append([x-1,y-1])
+                    if([x-1,y+1] not in enemymoves):
+                        self.moves.append([x-1,y-1])
             if (yplus):
                 if (board[x-1][y+1] == None or board[x-1][y+1].white == (not self.white)):
-                    self.moves.append([x-1,y+1])
+                    if([x-1,y+1] not in enemymoves):
+                        self.moves.append([x-1,y+1])
         if (yminus):
             if (board[x][y-1] == None or board[x][y-1].white == (not self.white)):
-                self.moves.append([x,y-1])
+                if([x,y-1] not in enemymoves):
+                    self.moves.append([x,y-1])
         if (yplus):
             if (board[x][y+1] == None or board[x][y+1].white == (not self.white)):
-                self.moves.append([x,y+1])
+                if([x,y+1] not in enemymoves):
+                    self.moves.append([x,y+1])
         
         #if path is clear and king and rook havent moved yet, allow for castling
         if(self.made_first_move == False):
