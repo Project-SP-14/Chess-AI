@@ -23,6 +23,7 @@ class Board:
         self.currentpiece = [-1,-1]
         self.previouspiece = [-1,-1,-1,-1]
         self.previousmove = [-1,-1,-1,-1]
+        self.capturelastfifty = []
         self.capturedpiecetype = None
         self.white = True
         self.aimove = False
@@ -83,8 +84,11 @@ class Board:
                 if(isinstance(self.board[x][y], king.King)):
                     self.game_ended = True
                     self.winner = not self.board[x][y].white
+                self.capturelastfifty.append(1)
             else:
                 self.capturedpiecetype = None
+                self.capturelastfifty.append(0)
+                
             self.board[x][y] = self.board[self.currentpiece[0]][self.currentpiece[1]]
             self.board[self.currentpiece[0]][self.currentpiece[1]] = None
             self.board[x][y].made_first_move = True
@@ -111,6 +115,11 @@ class Board:
             self.currentpiece = [-1,-1]
             self.white = not self.white
             self.currentp = (self.currentp + 1)%2 
+            if (len(self.capturelastfifty) > 50):
+                self.capturelastfifty.pop(0)
+                if (1 not in self.capturelastfifty):
+                    self.game_ended = True
+                    self.winner = 2
             return True
         else:
             self.moves = []
@@ -158,13 +167,13 @@ class Board:
                         else:
                             bk = [self.board[x][y],x,y]
         if (self.white):
-            p_moves = bk[0].generate_moves(bk[1],bk[2],self.board,whitemoves)
+            p_moves = bk[0].generate_moves(bk[1],bk[2],self.board,[])
             for m in p_moves:
                 if not x in blackmoves:
                     blackmoves.append(x)
             wk[0].generate_moves(wk[1],wk[2],self.board,blackmoves)
         else:
-            p_moves = wk[0].generate_moves(wk[1],wk[2],self.board,blackmoves) 
+            p_moves = wk[0].generate_moves(wk[1],wk[2],self.board,[]) 
             for m in p_moves:
                 if not x in whitemoves:
                     whitemoves.append(x)

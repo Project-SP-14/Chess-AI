@@ -30,7 +30,7 @@ class King:
                     self.moves.append([x-1,y])
             if (yminus):
                 if (board[x-1][y-1] == None or board[x-1][y-1].white == (not self.white)):
-                    if([x-1,y+1] not in enemymoves):
+                    if([x-1,y-1] not in enemymoves):
                         self.moves.append([x-1,y-1])
             if (yplus):
                 if (board[x-1][y+1] == None or board[x-1][y+1].white == (not self.white)):

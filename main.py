@@ -463,9 +463,9 @@ while True:
                 game_started = False
                 game_ended = True
                 winner = b.winner
-                if(winner):
+                if(winner == 1):
                     winp1 += 1
-                else:
+                elif(winner == 0):
                     winp2 += 1
             elif (b.aimove):
                 b.aimove = False
@@ -497,10 +497,12 @@ while True:
         screen.blit(savematchmsg,(320,608))
         score = f'{winp1} - {winp2}'
         scoremsg = fontt.render(score,True, (250, 250, 250))
-        if (winner == True):
+        if (winner == 1):
             victorymsg = fontt.render('Player 1 Wins', True, white)
-        else:
+        elif (winner == 0):
             victorymsg = fontt.render('Player 2 Wins', True, white)
+        else:
+            victorymsg = fontt.render('Stalemate', True, white)
         screen.blit(victorymsg,(320,320))
         screen.blit(scoremsg,(320,384))
         
