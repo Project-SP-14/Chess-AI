@@ -50,6 +50,7 @@ game_started = False
 game_ended = False
 pawn_promotion = False
 match_state_selector = False
+rules_state = False
 
 #win/lose information
 winner = False
@@ -82,6 +83,8 @@ loadstate = pygame.Rect(512, 800, 256,64)
 loadstatemsg = fontt.render('Load State', True, black)
 loadmatch = pygame.Rect(512, 704, 256,64)
 loadmatchmsg = fontt.render('Load match', True, black)
+showrules = pygame.Rect(192, 704, 256,64)
+showrulesmsg = fontt.render('Show Rules', True, black)
 aivsai = pygame.Rect(192, 512, 896, 64)
 aivaimsg = fontt.render('AI versus AI', True, black)
 aivsaie1 = pygame.Rect(192, 608, 128, 64)
@@ -116,6 +119,10 @@ forwardstate = pygame.Rect(1152,960,64,32)
 forwardstatemsg = fontt.render('>', True, black)
 exitbutton = pygame.Rect(1056,896,192,32)
 exitmsg = fontt.render('Exit', True, black)
+
+#rules_state close button
+close_button = pygame.Rect(512,896,256,64)
+closemsg = fontt.render('Close Rules', True, black)
 
 #finds the correct sprite for the piece
 def draw_pieces(piece):
@@ -252,20 +259,30 @@ while True:
                                 b.currentp = b_loaded_player
                                 
                         #select ai player 1 difficulty
-                        elif(aivsaie1):
+                        elif(aivsaie1.collidepoint(mpos)):
                             aivaidiff1 = 0
-                        elif(aivsaim1):
+                        elif(aivsaim1.collidepoint(mpos)):
                             aivaidiff1 = 1
-                        elif(aivsaih1):
+                        elif(aivsaih1.collidepoint(mpos)):
                             aivaidiff1 = 2
                         #select ai player 2 difficulty
-                        elif(aivsaie2):
+                        elif(aivsaie2.collidepoint(mpos)):
                             aivaidiff2 = 0
-                        elif(aivsaim2):
+                        elif(aivsaim2.collidepoint(mpos)):
                             aivaidiff2 = 1
-                        elif(aivsaih2):
+                        elif(aivsaih2.collidepoint(mpos)):
                             aivaidiff2 = 2
                             
+                        elif(showrules.collidepoint(mpos)):
+                            title_screen = False
+                            rules_state = True
+                            
+                elif(rules_state):
+                    if(close_button.collidepoint(mpos)):
+                        title_screen = True
+                        rules_state = False                     
+                
+                         
                 elif(match_state_selector):
                     if (backstate.collidepoint(mpos)):
                         if matchlstate > 0:
@@ -384,6 +401,8 @@ while True:
         screen.blit(harddiffmsg,(992, 608))
         pygame.draw.rect(screen,white,loadmatch)
         screen.blit(loadmatchmsg,(512, 704))
+        pygame.draw.rect(screen,white,showrules)
+        screen.blit(showrulesmsg,(192, 704))
 
     
     elif (match_state_selector):
@@ -506,10 +525,15 @@ while True:
         screen.blit(victorymsg,(320,320))
         screen.blit(scoremsg,(320,384))
         
+    elif(rules_state):
+        rules = pygame.image.load('./images/rules.png')
+        screen.blit(rules,(0,0))
+        pygame.draw.rect(screen,white,close_button)
+        screen.blit(closemsg,(512,896))
         
     #if we are not on the title screen then we always draw the save state and current board info area
     #only let these areas be interacted when game_started is true and the board is under human control
-    if (not title_screen):
+    if (not title_screen and not rules_state):
         pygame.draw.rect(screen,blue,pygame.Rect(1024, 0, 256, 1024))
         pygame.draw.rect(screen, white,savestate)
         screen.blit(savestatemsg,(1056,32))
