@@ -32,7 +32,7 @@ class AI:
                     if not isinstance(new_board[i][j], king.King):
                         new_board[i][j].generate_moves(i, j, new_board)
                     else:
-                        new_board[i][j].moves = []
+                        new_board[i][j].generate_moves(i, j, new_board, [])
 
         return new_board
 
@@ -46,12 +46,12 @@ class AI:
                 piece = board[x][y]
                 if piece != None:
                     v = self.piece_value(piece)
-                    if piece.white == color:
+                    if piece.white:
                         score += v
                     else:
                         score -= v
                     if (x,y) in center:
-                        if piece.white == color:
+                        if piece.white:
                             score += 0.3
                         else:
                             score -= 0.3
@@ -110,9 +110,9 @@ class AI:
                 val = self.alphabeta(new_b, depth-1, alpha, beta, False, color)
                 if val > best:
                     best = val
-                alpha = max(alpha, best)
-                if alpha >= beta:
+                if best >= beta:
                     break
+                alpha = max(alpha, best)
             return best
         else:
             best = 9999
@@ -121,9 +121,9 @@ class AI:
                 val = self.alphabeta(new_b, depth-1, alpha, beta, True, color)
                 if val < best:
                     best = val
-                beta = min(beta, best)
-                if alpha >= beta:
+                if alpha >= best:
                     break
+                beta = min(beta, best)
             return best
 
     # main function called by board
@@ -137,8 +137,12 @@ class AI:
         if len(moves) == 0:
             return None
 
-        best_move = moves[0]
-        best_score = -9999
+        best_move = [0,0,0,0]  
+        best_score = 0
+        if color:
+            best_score = -9999
+        else:
+            best_score = 9999
 
         # difficulty 1 - minimax depth 2
         if self.difficulty == 1:
@@ -150,14 +154,23 @@ class AI:
                     best_score = val
                     best_move = m
 
-        # difficulty 2 - alphabeta depth 3
+        # difficulty 2 - alphabeta depth 4
         elif self.difficulty == 2:
-            depth = 3
+            depth = 4
+            alpha = -9999
+            beta = 9999
             for m in moves:
                 new_b = self.simulate_move(board, m[0],m[1],m[2],m[3])
-                val = self.alphabeta(new_b, depth-1, -9999, 9999, False, color)
-                if val > best_score:
-                    best_score = val
-                    best_move = m
+                val = self.alphabeta(new_b, depth, alpha, beta, not color, color)
+                if color:
+                    if val > best_score:
+                        best_score = val
+                        best_move = m
+                        alpha = val
+                else:
+                    if val < best_score:
+                        best_score = val
+                        best_move = m
+                        beta = val
 
         return best_move

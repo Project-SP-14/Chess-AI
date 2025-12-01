@@ -164,7 +164,7 @@ class Board:
     
     def start_turn(self):
         #generate all moves at the start of the turn
-        #TODO: generate the moves for current players king last so that
+        #generate the moves for current players king last so that
         #we can check if the king would be put in danger
         bk = []
         wk = []
