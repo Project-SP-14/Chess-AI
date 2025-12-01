@@ -8,6 +8,7 @@ import knight
 import bishop
 import time
 import matchloader
+from client import ClientConnection
 
 pygame.init()
 pygame.freetype.init()
@@ -227,10 +228,21 @@ while True:
                             if (b_loaded_file != None):
                                 b.load_state(b_loaded_file)
                                 b.currentp = b_loaded_player
-                                
+
                         elif (onlinepvp.collidepoint(mpos)):
-                            print('online is not implemented')
-                            
+                            # start online player versus player game
+                            title_screen = False
+                            game_started = True
+                            b_args = [0,0,0,0]
+                            b = board.Board(0,0,0,0)
+                            # if there is a loaded board state then put it into the board object
+                            if (b_loaded_file != None):
+                                b.load_state(b_loaded_file)
+                                b.currentp = b_loaded_player
+
+                            b.online = True
+                            b.client = ClientConnection("127.0.0.1", 5050, b)
+
                         #starts player versus ai game
                         elif (localpvai.collidepoint(mpos)):
                             title_screen = False

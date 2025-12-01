@@ -31,8 +31,11 @@ class Board:
         self.pawn_promotion = False
         self.winner = False
         self.move_list = []
-        
-        
+
+        self.online = False
+        self.client = None
+
+
         #spawn pawns on the second and seventh rows
         for x in range(8):
             self.board[1][x] = pawn.Pawn(False, False)
@@ -65,8 +68,8 @@ class Board:
         #if the clicked piece is on the same side as the current player, store it for use in play_move
         if (self.white == self.board[x][y].white):
             self.currentpiece = [x,y]
-        
-    def play_move(self, x, y):
+
+    def play_move(self, x, y, network_move=False):
         #check that the selected move is in the list of valid moves and that the piece selected to move
         #is the same piece that was examined earlier
         if (self.currentpiece == [-1,-1]):
@@ -112,9 +115,15 @@ class Board:
                 self.previouspiece = [self.currentpiece[0],self.currentpiece[1],-1,-1]
                 self.previousmove = [x,y,-1,-1]
             self.move_list.append([self.currentpiece[0],self.currentpiece[1],x,y])
+
+            # send move to server if we are in online mode and this is a local move
+            if (self.online and self.client != None and network_move == False):
+                last = self.move_list[-1]
+                self.client.send_move(last[0], last[1], last[2], last[3])
+
             self.currentpiece = [-1,-1]
             self.white = not self.white
-            self.currentp = (self.currentp + 1)%2 
+            self.currentp = (self.currentp + 1)%2
             if (len(self.capturelastfifty) > 50):
                 self.capturelastfifty.pop(0)
                 if (1 not in self.capturelastfifty):
@@ -125,6 +134,19 @@ class Board:
             self.moves = []
             self.currentpiece = [-1,-1]
             return False
+
+    def apply_network_move(self, x1, y1, x2, y2):
+        # set the selected piece to the starting position
+        self.currentpiece = [x1, y1]
+
+        # use the moves already generated for this piece
+        if (self.board[x1][y1] != None):
+            self.moves = self.board[x1][y1].moves
+        else:
+            self.moves = []
+
+        # play the move but mark it as a network move
+        self.play_move(x2, y2, True)
             
     def pawn_promote(self,promotion_value):
         xpos = self.previousmove[0]
