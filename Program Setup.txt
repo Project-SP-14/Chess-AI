@@ -1,0 +1,15 @@
+Program Setup
+Install Python onto the computer from the website: https://www.python.org/
+
+Install pygame by entering the command "pip install pygame" onto the command prompt on the computer
+
+Download the Chess Game's zip file and extract the contents onto a folder.
+
+Open the computer's command prompt and change directories using the cd command and the location of the chess game folder
+
+	Example: cd C:\Users\[Username]\Desktop\Chess-AI-main
+
+When in the directory of the chess game, enter the command "python main.py" to start the game 
+
+
+
